@@ -26,6 +26,7 @@ import sifive.blocks.inclusivecache._
 import freechips.rocketchip.devices.tilelink._
 import freechips.rocketchip.util._
 import sifive.blocks.inclusivecache.InclusiveCacheParameters
+import chisel3.util.log2Ceil
 
 case class InclusiveCacheParams(
   ways: Int,
@@ -125,7 +126,7 @@ class WithInclusiveCache(
 
     l2_inner_buffer.node :*= filter.node
     l2.node :*= l2_inner_buffer.node
-    l2_outer_buffer.node :*= l2.node
+    l2_outer_buffer.node :*= ReBankSystemHasher("L2",p(CacheHashParamsKey).blockBytes,p(CacheHashParamsKey).nBanks,p(CacheHashParamsKey).hashTagBits) :*= l2.node
 
     /* PhysicalFilters need to be on the TL-C side of a CacheCork to prevent Acquire.NtoB -> Grant.toT */
     physicalFilter match {
